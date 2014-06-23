@@ -1,6 +1,6 @@
 name := """csw-play-demo"""
 
-version := "2.3-SNAPSHOT"
+version := "2.3.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
@@ -11,6 +11,9 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   "org.tmt"           %% "util" % "1.0",
+  // util depends on these
+  "io.spray" %% "spray-json" % "1.2.6",
+  "io.spray" %% "spray-httpx" % "1.3.1-20140423",
   //
   "org.webjars"       % "bootstrap" % "3.1.1",
   "org.webjars"       % "jquery" % "2.1.0-2",

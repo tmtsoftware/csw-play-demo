@@ -1,9 +1,10 @@
 package models
 
+import _root_.util.SprayJsonSupport
+import csw.util.cfg.Configurations.{SetupConfig, SetupConfigList}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import Assembly1Settings._
-import csw.util.Configuration
 
 
 object Assembly1Settings {
@@ -42,7 +43,6 @@ object Assembly1Settings {
 
 
   // JSON formats
-//  implicit val assembly1SettingsFormat = Json.format[Assembly1Settings]
   implicit val basePosFormat = Json.format[BasePos]
   implicit val telescopePosFormat = Json.format[TelescopePos]
   implicit val submitResponseFormat = Json.format[SubmitResponse]
@@ -50,35 +50,35 @@ object Assembly1Settings {
 
   // Returns an Assembly1Settings object for the given JSON, wrapped in a JsResult
   def fromJson(json: JsValue): JsResult[Assembly1Settings] = {
-    for {
-      basePos <- Json.fromJson[BasePos](json \ "config" \ "tmt" \ "tel" \ "base" \ "pos" )
-      telescopePos <- Json.fromJson[TelescopePos](json \ "config" \ "tmt" \ "tel" \ "ao" \ "pos" \ "one")
-    } yield Assembly1Settings(basePos, telescopePos)
+//    for {
+//      basePos <- Json.fromJson[BasePos](json \ "[0]" \ "setup" \ "tmt.tel.base.pos" )
+//      telescopePos <- Json.fromJson[TelescopePos](json \ "[1]" \ "setup" \ "tmt.tel.ao.pos.one")
+//    } yield Assembly1Settings(basePos, telescopePos)
+
+    val scl = SprayJsonSupport.jsonToSetupConfigList(json.toString())
+    JsSuccess(SprayJsonSupport.setupConfigListToAssembly1Settings(scl))
   }
 }
 
 // Corresponds to the form that is displayed for editing
 case class Assembly1Settings(basePos: BasePos, aoPos: TelescopePos) {
-  // Returns the configuration corresponding to this object (in HOCON format:
-  // See https://github.com/typesafehub/config/blob/master/HOCON.md
-  // This can be converted to JSON by calling toJson.
-  // We can't use the usual methods to create JSON in Play, since we need keys with dots in them,
-  // but also want them to be part of the hierarchy, which does not work with plain JSON.
-  def getConfig: Configuration = Configuration(
-    Map("config" ->
-      Map(
-        "info" -> Map("obsId" -> "TMT-2021A-C-2-1"), // Hard coded for this test
-        "tmt.tel.base.pos" -> Map(
-          "posName" -> basePos.posName,
-          "c1" -> basePos.c1,
-          "c2" -> basePos.c2,
-          "equinox" -> basePos.equinox),
-        "tmt.tel.ao.pos.one" -> Map(
-          "c1" -> aoPos.c1,
-          "c2" -> aoPos.c2,
-          "equinox" -> aoPos.equinox)
+  val obsId = "obsId0001" // XXX TODO FIXME: need to keep track of obsId
+  def getConfig: SetupConfigList = List(
+      SetupConfig(
+        obsId = obsId,
+        "tmt.tel.base.pos",
+        "posName" -> basePos.posName,
+        "c1" -> basePos.c1,
+        "c2" -> basePos.c2,
+        "equinox" -> basePos.equinox
+      ),
+      SetupConfig(
+        obsId = obsId,
+        "tmt.tel.base.pos",
+        "c1" -> aoPos.c1,
+        "c2" -> aoPos.c2,
+        "equinox" -> aoPos.equinox
       )
-    )
   )
 }
 

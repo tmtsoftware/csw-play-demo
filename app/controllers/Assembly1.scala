@@ -1,5 +1,6 @@
 package controllers
 
+import _root_.util.SprayJsonSupport
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
@@ -8,7 +9,7 @@ import models._
 import models.Constraints._
 import models.Assembly1Settings._
 import play.api.Play.current
-import play.api.libs.ws.{Response, WS}
+import play.api.libs.ws.{WSResponse, WS}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import play.api.i18n.Messages
@@ -62,18 +63,6 @@ object Assembly1 extends Controller {
   ).fill(Assembly1Settings.defaultSettings)
 
 
-
-////  // Called when the form is displayed (before Submit is pressed)
-//  def edit = Action {
-//    implicit request =>
-//      val form = Cache.getAs[Map[String,String]](cacheKey) match {
-//        case Some(s) => assembly1SettingsForm.bind(s)
-//        case None => assembly1SettingsForm.bind(flash.data).fill(Assembly1Settings.defaultSettings)
-//      }
-//      Ok(views.html.assembly1(form, ""))
-//  }
-
-
   // Called when the form is displayed (before Submit is pressed)
   def edit = Action.async {
     implicit request =>
@@ -82,12 +71,12 @@ object Assembly1 extends Controller {
           val form = assembly1SettingsForm.bind(s)
           Future.successful(Ok(views.html.assembly1(form, "")))
         case None =>
-          val json = Json.parse(defaultSettings.getConfig.toJson)
+          val json = Json.parse(SprayJsonSupport.setupConfigListToJson(defaultSettings.getConfig))
           // get the current values
           WS.url(getUrl).post(json).map {
             response =>
               val opt = settingsFromResponse(response)
-              if (!opt.isEmpty) {
+              if (opt.nonEmpty) {
                 val form = assembly1SettingsForm.fill(opt.get)
                 Ok(views.html.assembly1(form, ""))
               } else {
@@ -110,15 +99,16 @@ object Assembly1 extends Controller {
 
       form.value.map {
         settings =>
-          val json = Json.parse(settings.getConfig.toJson)
+//          val json = Json.parse(settings.getConfig.toJson.toString())
+          val json = Json.parse(SprayJsonSupport.setupConfigListToJson(defaultSettings.getConfig))
           WS.url(submitUrl).post(json).map {
             response =>
               val runIdOpt = runIdFromResponse(response)
-              if (!runIdOpt.isEmpty) {
+              if (runIdOpt.nonEmpty) {
                 val runId = runIdOpt.get
                 Redirect(routes.Assembly1.show(runId)).flashing(flashResponse(response, runIdOpt))
               } else {
-                Redirect(routes.Assembly1.edit).flashing(flashResponse(response, runIdOpt))
+                Redirect(routes.Assembly1.edit()).flashing(flashResponse(response, runIdOpt))
               }
           }
       } getOrElse {
@@ -139,7 +129,7 @@ object Assembly1 extends Controller {
   }
 
   // Returns the runId from the command server response body where it is in json format
-  private def runIdFromResponse(response: Response): Option[String] = {
+  private def runIdFromResponse(response: WSResponse): Option[String] = {
     if (response.status == ACCEPTED) {
       Json.fromJson[SubmitResponse](Json.parse(response.body)) map {
         submitResponse: SubmitResponse =>
@@ -153,7 +143,7 @@ object Assembly1 extends Controller {
   }
 
   // Returns the current settings from the command server response body where it is in json format
-  private def settingsFromResponse(response: Response): Option[Assembly1Settings] = {
+  private def settingsFromResponse(response: WSResponse): Option[Assembly1Settings] = {
     if (response.status == OK) {
       val json = Json.parse(response.body)
       val jsResult = Assembly1Settings.fromJson(json)
@@ -170,7 +160,7 @@ object Assembly1 extends Controller {
 
 
   // Returns a key value pair to put in the flash data for the request
-  private def flashResponse(response: Response, runIdOpt: Option[String]): (String, String) = {
+  private def flashResponse(response: WSResponse, runIdOpt: Option[String]): (String, String) = {
     if (response.status == ACCEPTED) {
       runIdOpt match {
         case Some(runId) => ("success", Messages("queue.submit.success") + s": RunId = $runId")
@@ -206,7 +196,7 @@ object Assembly1 extends Controller {
     }
 
     // Returns the command status from the command server JSON response, or None on error
-    private def commandStatusFromResponse(response: Response, runId: String): Option[String] = {
+    private def commandStatusFromResponse(response: WSResponse, runId: String): Option[String] = {
       if (!done && response.status == OK) {
         Json.fromJson[StatusResponse](Json.parse(response.body)) map {
           statusResponse: StatusResponse =>
