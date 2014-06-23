@@ -16,6 +16,7 @@ object SprayJsonSupport extends ConfigJsonFormats{
   def jsonToSetupConfigList(json: String): SetupConfigList = json.parseJson.convertTo[SetupConfigList]
 
   def setupConfigListToAssembly1Settings(scl: SetupConfigList): Assembly1Settings = {
+    // XXX assumes order in SetupConfigList
     val bp = scl(0)
     val tp = scl(1)
     Assembly1Settings(
@@ -26,9 +27,9 @@ object SprayJsonSupport extends ConfigJsonFormats{
         bp("equinox").elems.head.asInstanceOf[String]
       ),
       TelescopePos(
-        bp("c1").elems.head.asInstanceOf[String],
-        bp("c2").elems.head.asInstanceOf[String],
-        bp("equinox").elems.head.asInstanceOf[String]
+        tp("c1").elems.head.asInstanceOf[String],
+        tp("c2").elems.head.asInstanceOf[String],
+        tp("equinox").elems.head.asInstanceOf[String]
       ))
   }
 }
