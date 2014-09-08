@@ -4,13 +4,13 @@ version := "2.3.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
 
 libraryDependencies ++= Seq(
   jdbc,
   cache,
   ws,
-  "org.tmt"           %% "util" % "1.0",
+  "org.tmt"           %% "util" % "0.1-SNAPSHOT",
   // util depends on these
   "io.spray" %% "spray-json" % "1.2.6",
   "io.spray" %% "spray-httpx" % "1.3.1-20140423",
