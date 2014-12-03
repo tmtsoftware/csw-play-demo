@@ -1,6 +1,6 @@
 package models
 
-import _root_.util.SprayJsonSupport
+import util.SprayJsonSupport
 import csw.util.cfg.Configurations.{SetupConfig, SetupConfigList}
 import play.api.libs.json._
 import play.api.libs.functional.syntax._

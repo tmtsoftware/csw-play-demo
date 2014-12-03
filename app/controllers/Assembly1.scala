@@ -1,6 +1,6 @@
 package controllers
 
-import _root_.util.SprayJsonSupport
+import util.SprayJsonSupport
 import play.api._
 import play.api.mvc._
 import play.api.data.Form
