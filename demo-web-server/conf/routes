@@ -3,14 +3,17 @@
 # ~~~~
 
 # Home page
-GET        /                     controllers.Application.index
+GET         /                     controllers.Application.index
 
 
 # Websocket to notify client
-GET        /ws                   controllers.Application.ws
+GET         /ws                   controllers.Application.ws
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file         controllers.Assets.at(path="/public", file)
+GET         /assets/*file         controllers.Assets.at(path="/public", file)
 
 # Get web jars
-GET        /webjars/*file        controllers.WebJarAssets.at(file)
+GET         /webjars/*file        controllers.WebJarAssets.at(file)
+
+# Submit
+POST        /submit               controllers.Application.submit(filter: Option[String], disperser: Option[String])

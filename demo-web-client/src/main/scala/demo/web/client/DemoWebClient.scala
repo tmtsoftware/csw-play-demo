@@ -35,7 +35,7 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   private val filterChooser = FilterChooser(filterSelected)
   private val disperserChooser = DisperserChooser(disperserSelected)
   private val buttons = FormButtons()
-  private val progressBar = ProgressBar()
+  //  private val progressBar = ProgressBar()
   private val statusItem = StatusItem()
   private def divider = {
     import scalatags.JsDom.all._
@@ -43,6 +43,8 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   }
 
   doLayout()
+  initWebSocket()
+  statusItem.clearStatus()
 
   // Layout the components on the page
   private def doLayout(): Unit = {
@@ -60,26 +62,58 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
 
     layout.addItem(form)
     layout.addElement(divider)
-    layout.addItem(progressBar)
+    //    layout.addItem(progressBar)
     layout.addItem(statusItem)
 
     body.appendChild(layout.markup())
   }
 
+  // Initialize a websocket for status messages on a running submit
+  private def initWebSocket(): Unit = {
+    val socket = new dom.WebSocket(wsBaseUrl)
+    socket.onmessage = wsReceive _
+  }
+
+  // Receive a status message from the server websocket
+  private def wsReceive(e: dom.MessageEvent): Unit = {
+    val statusStr = e.data.toString
+    statusItem.setStatus(statusStr)
+    // XXX TODO How to get status of single item?
+    statusStr match {
+      case "completed" ⇒
+        filterChooser.itemSaved()
+        disperserChooser.itemSaved()
+      case "error" ⇒
+        filterChooser.itemError()
+        disperserChooser.itemError()
+
+      case _ ⇒
+    }
+  }
+
+  // Called when a new filter was selected
   private def filterSelected(filter: String): Unit = {
   }
 
+  // Called when a new disperser was selected
   private def disperserSelected(disperser: String): Unit = {
   }
 
   private def refreshButtonSelected(): Unit = {
-    println("XXX refreshButtonSelected")
   }
 
   private def applyButtonSelected(): Unit = {
-    println("XXX applyButtonSelected")
-    filterChooser.itemSaved()
-    disperserChooser.itemSaved()
+    val filter = filterChooser.getSelectedItem
+    val disperser = disperserChooser.getSelectedItem
+
+    //    progressBar.setActive(true)
+
+    // XXX FIXME
+    val url = Routes.submit(filter, disperser)
+    Ajax.post(url).map { r ⇒
+      // XXX TODO Check result status
+    }
+
   }
 
   private def submitForm(e: Event): Unit = {

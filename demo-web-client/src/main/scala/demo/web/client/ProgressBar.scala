@@ -17,16 +17,17 @@ case class ProgressBar(idStr: String = "progress") extends Displayable {
       "aria-valuemax".attr := "100", style := "width: 0%", "0%").render
   }
 
+  private def pb = $(s"#$idStr")
+
   /**
    * Sets the progress bar to active/not active
    * @param active true if active
    */
   def setActive(active: Boolean): Unit = {
-    val p = $(s"#$idStr")
     if (active)
-      p.addClass("active")
+      pb.addClass("active")
     else
-      p.removeClass("active")
+      pb.removeClass("active")
   }
 
   /**
@@ -34,8 +35,7 @@ case class ProgressBar(idStr: String = "progress") extends Displayable {
    * @param percent percent done
    */
   def setProgress(percent: Int): Unit = {
-    val p = $(s"#$idStr")
-    p.css("width", percent + "%").attr("aria-valuenow", percent.toString).html(s"$percent %")
+    pb.css("width", percent + "%").attr("aria-valuenow", percent.toString).html(s"$percent %")
   }
 
   override def markup(): Element = {

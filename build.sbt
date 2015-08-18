@@ -64,6 +64,7 @@ lazy val demoWebServer = (project in file("demo-web-server"))
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.4",
       "org.webjars.bower" % "bootstrap-table" % "1.7.0",
+      "org.tmt" %% "cmd" % "0.1-SNAPSHOT",
       specs2 % Test
     )
   )

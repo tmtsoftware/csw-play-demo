@@ -13,7 +13,13 @@ class FormComboBox(labelStr: String, choices: List[String], listener: String ⇒
   val idStr = labelStr.toLowerCase
   val stateIdStr = idStr + "State"
 
-  // Put a check mark or X to the righ of the select item to indicate the state
+  val editedIcon = "glyphicon-asterisk"
+  val savedIcon = "glyphicon-ok"
+  val errorIcon = "glyphicon-remove"
+
+  def stateItem = $(s"#$stateIdStr")
+
+  // Put a check mark, * or X to the right of the select item to indicate the state (saved, edited, error)
   private val selectState = {
     import scalatags.JsDom.all._
     import scalacss.ScalatagsCss._
@@ -29,9 +35,8 @@ class FormComboBox(labelStr: String, choices: List[String], listener: String ⇒
 
   // called when an item is selected
   private def itemSelected(e: dom.Event): Unit = {
-    val stateItem = $(s"#$stateIdStr")
-    stateItem.removeClass("glyphicon-ok")
-    stateItem.addClass("glyphicon-remove")
+    stateItem.removeClass(s"$savedIcon $errorIcon text-danger text-success")
+    stateItem.addClass(editedIcon)
     stateItem.removeClass("hidden")
     listener(getSelectedItem)
   }
@@ -40,9 +45,17 @@ class FormComboBox(labelStr: String, choices: List[String], listener: String ⇒
    * Mark the item as successfully saved
    */
   def itemSaved(): Unit = {
-    val stateItem = $(s"#$stateIdStr")
-    stateItem.removeClass("glyphicon-remove")
-    stateItem.addClass("glyphicon-ok")
+    stateItem.removeClass(s"$editedIcon $errorIcon text-danger")
+    stateItem.addClass(s"$savedIcon text-success")
+    stateItem.removeClass("hidden")
+  }
+
+  /**
+   * Mark the item as in error
+   */
+  def itemError(): Unit = {
+    stateItem.removeClass(s"$editedIcon $savedIcon text-success")
+    stateItem.addClass(s"$errorIcon text-danger")
     stateItem.removeClass("hidden")
   }
 
