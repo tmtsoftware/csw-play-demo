@@ -1,5 +1,3 @@
-import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
-
 import scalariform.formatter.preferences._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
@@ -85,7 +83,8 @@ lazy val demoWebClient = (project in file("demo-web-client")).settings(
     "com.lihaoyi" %%% "upickle" % "0.3.4",
     "org.querki" %%% "jquery-facade" % "0.7", // includes jquery webjar!
     "com.github.japgolly.scalacss" %%% "core" % "0.3.0",
-    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.0"
+    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.0",
+    "org.tmt" %%% "shared" % "0.1-SNAPSHOT"
   ),
   skip in packageJSDependencies := false,
   jsDependencies ++= Seq(

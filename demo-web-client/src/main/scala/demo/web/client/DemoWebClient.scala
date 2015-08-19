@@ -2,14 +2,12 @@ package demo.web.client
 
 //import demo.web.shared._
 
+import csw.shared.CommandStatus
+import csw.shared.CommandStatus._
 import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLStyleElement
-import upickle.default._
-import org.querki.jquery._
-
-import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
@@ -35,7 +33,6 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   private val filterChooser = FilterChooser(filterSelected)
   private val disperserChooser = DisperserChooser(disperserSelected)
   private val buttons = FormButtons()
-  //  private val progressBar = ProgressBar()
   private val statusItem = StatusItem()
   private def divider = {
     import scalatags.JsDom.all._
@@ -54,15 +51,12 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
     form.addItem(filterChooser)
     form.addItem(disperserChooser)
 
-    //    form.addElement(divider)
-
     buttons.addButton("Refresh", refreshButtonSelected, "button")
     buttons.addButton("Apply", applyButtonSelected, "submit")
     form.addItem(buttons)
 
     layout.addItem(form)
     layout.addElement(divider)
-    //    layout.addItem(progressBar)
     layout.addItem(statusItem)
 
     body.appendChild(layout.markup())
@@ -76,14 +70,14 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
 
   // Receive a status message from the server websocket
   private def wsReceive(e: dom.MessageEvent): Unit = {
-    val statusStr = e.data.toString
-    statusItem.setStatus(statusStr)
-    // XXX TODO How to get status of single item?
-    statusStr match {
-      case "completed" ⇒
+    import upickle.default._
+    val status = read[CommandStatus](e.data.toString)
+    statusItem.setStatus(status)
+    status match {
+      case Completed(_) ⇒
         filterChooser.itemSaved()
         disperserChooser.itemSaved()
-      case "error" ⇒
+      case Error(_, _) ⇒
         filterChooser.itemError()
         disperserChooser.itemError()
 
@@ -105,8 +99,6 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   private def applyButtonSelected(): Unit = {
     val filter = filterChooser.getSelectedItem
     val disperser = disperserChooser.getSelectedItem
-
-    //    progressBar.setActive(true)
 
     // XXX FIXME
     val url = Routes.submit(filter, disperser)

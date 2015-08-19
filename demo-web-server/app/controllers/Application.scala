@@ -3,14 +3,12 @@ package controllers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import csw.services.cmd.spray.CommandServiceHttpClient
+import csw.shared.CommandStatus
 import csw.util.cfg.Configurations.SetupConfig
-import play.api._
-import play.api.Play.current
-import play.api.libs.iteratee.{ Concurrent, Enumerator, Iteratee }
+import play.api.libs.iteratee.{ Concurrent, Iteratee }
 import demo.web.shared.Csrf
 import play.api.mvc._
 import play.filters.csrf.CSRFAddToken
-import play.api.libs.json._
 
 // Main controller: redirects to the Assembly1 page
 object Application extends Controller {
@@ -45,6 +43,7 @@ object Application extends Controller {
 
   // Submit a command
   def submit(filterOpt: Option[String], disperserOpt: Option[String]) = Action {
+    import upickle.default._
     implicit val system = commandService.system
     import system.dispatcher
     implicit val materializer = ActorMaterializer()
@@ -72,8 +71,8 @@ object Application extends Controller {
       source ← commandService.queueSubmit(configs)
     } yield {
       source.runForeach { status ⇒
-        println(s"XXX Command status: $status")
-        wsChannel.push(status.name)
+        val json = write(status)
+        wsChannel.push(json)
       }
     }
 

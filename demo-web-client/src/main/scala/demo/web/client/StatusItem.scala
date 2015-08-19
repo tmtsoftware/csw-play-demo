@@ -1,5 +1,7 @@
 package demo.web.client
 
+import csw.shared.CommandStatus
+import csw.shared.CommandStatus._
 import org.querki.jquery._
 import org.scalajs.dom._
 
@@ -18,29 +20,28 @@ case class StatusItem(idStr: String = "status") extends Displayable {
   }
 
   private def statusItem = $(s"#$idStr")
+
   def busyStatusItem = $(s"#busy$idStr")
 
   /**
    * Sets the command status to display
    * (From CommandStatus.toString: one of "queued", "busy", "partially completed", "completed", "error")
    */
-  def setStatus(statusStr: String): Unit = {
-    val labelClass = statusStr match {
-      case "completed" ⇒ "label-success"
-      case "error"     ⇒ "label-danger"
-      case _           ⇒ "label-info"
+  def setStatus(status: CommandStatus): Unit = {
+    val labelClass = status match {
+      case Completed(_) ⇒ "label-success"
+      case Error(_, _)  ⇒ "label-danger"
+      case _            ⇒ "label-info"
     }
     statusItem
       .removeClass("label-success label-danger label-info label-default")
       .addClass(labelClass)
-      .text(statusStr)
+      .text(status.name)
 
-    statusStr match {
-      case "completed" | "error" ⇒
-        busyStatusItem.hide().removeClass("glyphicon-refresh-animate")
-      case _ ⇒
-        busyStatusItem.show().addClass("glyphicon-refresh-animate")
-    }
+    if (status.done)
+      busyStatusItem.hide().removeClass("glyphicon-refresh-animate")
+    else
+      busyStatusItem.show().addClass("glyphicon-refresh-animate")
   }
 
   /**
