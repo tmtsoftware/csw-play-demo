@@ -15,5 +15,8 @@ GET         /assets/*file         controllers.Assets.at(path="/public", file)
 # Get web jars
 GET         /webjars/*file        controllers.WebJarAssets.at(file)
 
-# Submit
+# Submit the selected values
 POST        /submit               controllers.Application.submit(filter: Option[String], disperser: Option[String])
+
+# Get the current values
+POST        /configGet            controllers.Application.configGet()

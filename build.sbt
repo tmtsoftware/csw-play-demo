@@ -100,8 +100,10 @@ lazy val demoWebClient = (project in file("demo-web-client")).settings(
 lazy val demoWebShared = (crossProject.crossType(CrossType.Pure) in file("demo-web-shared"))
   .settings(scalaVersion := ScalaVersion)
   .settings(formatSettings: _*)
+  .settings(libraryDependencies += "org.tmt" %%% "shared" % "0.1-SNAPSHOT")
   .jsConfigure(_ enablePlugins ScalaJSPlay)
   .jsSettings(sourceMapsBase := baseDirectory.value / "..")
+
 
 lazy val demoWebSharedJvm = demoWebShared.jvm
 lazy val demoWebSharedJs = demoWebShared.js

@@ -1,9 +1,8 @@
 package demo.web.client
 
-//import demo.web.shared._
-
 import csw.shared.CommandStatus
 import csw.shared.CommandStatus._
+import demo.web.shared.{ DemoData, WebSocketMessage }
 import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.ext.Ajax
@@ -42,6 +41,7 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   doLayout()
   initWebSocket()
   statusItem.clearStatus()
+  refreshButtonSelected()
 
   // Layout the components on the page
   private def doLayout(): Unit = {
@@ -71,18 +71,32 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   // Receive a status message from the server websocket
   private def wsReceive(e: dom.MessageEvent): Unit = {
     import upickle.default._
-    val status = read[CommandStatus](e.data.toString)
+    println(s"XXX wsReceive ${e.data.toString}")
+    val wsMsg = read[WebSocketMessage](e.data.toString)
+    wsMsg.status foreach setStatus
+    wsMsg.data foreach setData
+  }
+
+  // Displays the return status from a submit command
+  private def setStatus(status: CommandStatus): Unit = {
     statusItem.setStatus(status)
     status match {
       case Completed(_) ⇒
         filterChooser.itemSaved()
         disperserChooser.itemSaved()
+        refreshButtonSelected()
       case Error(_, _) ⇒
         filterChooser.itemError()
         disperserChooser.itemError()
 
       case _ ⇒
     }
+  }
+
+  // Displays data returned from a configGet request
+  private def setData(data: DemoData): Unit = {
+    data.filterOpt.foreach(f ⇒ filterChooser.setSelectedItem(f, notifyListener = false))
+    data.disperserOpt.foreach(d ⇒ disperserChooser.setSelectedItem(d, notifyListener = false))
   }
 
   // Called when a new filter was selected
@@ -94,15 +108,18 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   }
 
   private def refreshButtonSelected(): Unit = {
+    val url = Routes.configGet()
+    Ajax.post(url, headers = Map("Content-Type" -> "text/plain")).map { r ⇒
+      // XXX TODO Check result status
+    }
   }
 
   private def applyButtonSelected(): Unit = {
     val filter = filterChooser.getSelectedItem
     val disperser = disperserChooser.getSelectedItem
 
-    // XXX FIXME
     val url = Routes.submit(filter, disperser)
-    Ajax.post(url).map { r ⇒
+    Ajax.post(url, headers = Map("Content-Type" -> "text/plain")).map { r ⇒
       // XXX TODO Check result status
     }
 

@@ -6,4 +6,5 @@ package demo.web.client
  */
 object Routes {
   def submit(filter: String, disperser: String): String = s"/submit?filter=$filter&disperser=$disperser"
+  def configGet(): String = "/configGet"
 }
