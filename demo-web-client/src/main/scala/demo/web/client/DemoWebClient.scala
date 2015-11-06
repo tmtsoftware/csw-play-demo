@@ -1,7 +1,6 @@
 package demo.web.client
 
-import csw.shared.CommandStatus
-import csw.shared.CommandStatus._
+import demo.web.shared.SharedCommandStatus
 import demo.web.shared.{ DemoData, WebSocketMessage }
 import org.scalajs.dom
 import org.scalajs.dom._
@@ -78,18 +77,14 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   }
 
   // Displays the return status from a submit command
-  private def setStatus(status: CommandStatus): Unit = {
+  private def setStatus(status: SharedCommandStatus): Unit = {
     statusItem.setStatus(status)
-    status match {
-      case Completed(_) ⇒
-        filterChooser.itemSaved()
-        disperserChooser.itemSaved()
-        refreshButtonSelected()
-      case Error(_, _) ⇒
-        filterChooser.itemError()
-        disperserChooser.itemError()
-
-      case _ ⇒
+    if (status.isError) {
+      filterChooser.itemError()
+      disperserChooser.itemError()
+    } else if (status.isDone) {
+      filterChooser.itemSaved()
+      disperserChooser.itemSaved()
     }
   }
 

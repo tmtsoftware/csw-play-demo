@@ -62,7 +62,7 @@ lazy val demoWebServer = (project in file("demo-web-server"))
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.4",
       "org.webjars.bower" % "bootstrap-table" % "1.7.0",
-      "org.tmt" %% "cmd" % "0.1-SNAPSHOT",
+      "org.tmt" %% "pkg" % "0.1-SNAPSHOT",
       specs2 % Test
     )
   )
@@ -83,8 +83,7 @@ lazy val demoWebClient = (project in file("demo-web-client")).settings(
     "com.lihaoyi" %%% "upickle" % "0.3.4",
     "org.querki" %%% "jquery-facade" % "0.7", // includes jquery webjar!
     "com.github.japgolly.scalacss" %%% "core" % "0.3.0",
-    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.0",
-    "org.tmt" %%% "shared" % "0.1-SNAPSHOT"
+    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.0"
   ),
   skip in packageJSDependencies := false,
   jsDependencies ++= Seq(
@@ -100,7 +99,6 @@ lazy val demoWebClient = (project in file("demo-web-client")).settings(
 lazy val demoWebShared = (crossProject.crossType(CrossType.Pure) in file("demo-web-shared"))
   .settings(scalaVersion := ScalaVersion)
   .settings(formatSettings: _*)
-  .settings(libraryDependencies += "org.tmt" %%% "shared" % "0.1-SNAPSHOT")
   .jsConfigure(_ enablePlugins ScalaJSPlay)
   .jsSettings(sourceMapsBase := baseDirectory.value / "..")
 
