@@ -5,7 +5,7 @@ import sbt.Keys._
 import sbt._
 import sbt.Project.projectToRef
 
-val Version = "0.1-SNAPSHOT"
+val Version = "0.2-SNAPSHOT"
 val ScalaVersion = "2.11.7"
 
 // Basic settings
@@ -62,7 +62,7 @@ lazy val demoWebServer = (project in file("demo-web-server"))
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.4",
       "org.webjars.bower" % "bootstrap-table" % "1.7.0",
-      "org.tmt" %% "pkg" % "0.1-SNAPSHOT",
+      "org.tmt" %% "pkg" % "0.2-SNAPSHOT",
       specs2 % Test
     )
   )
