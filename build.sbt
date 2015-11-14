@@ -58,7 +58,7 @@ lazy val demoWebServer = (project in file("demo-web-server"))
     libraryDependencies ++= Seq(
       filters,
       "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
-      "com.lihaoyi" %%% "upickle" % "0.3.4",
+      "com.lihaoyi" %%% "upickle" % "0.3.6",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.4",
       "org.webjars.bower" % "bootstrap-table" % "1.7.0",
@@ -78,12 +78,12 @@ lazy val demoWebClient = (project in file("demo-web-client")).settings(
   sourceMapsDirectories += demoWebSharedJs.base / "..",
   unmanagedSourceDirectories in Compile := Seq((scalaSource in Compile).value),
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.8.1",
-    "com.lihaoyi" %%% "scalatags" % "0.5.2",
-    "com.lihaoyi" %%% "upickle" % "0.3.4",
-    "org.querki" %%% "jquery-facade" % "0.7", // includes jquery webjar!
-    "com.github.japgolly.scalacss" %%% "core" % "0.3.0",
-    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.0"
+    "org.scala-js" %%% "scalajs-dom" % "0.8.2",
+    "com.lihaoyi" %%% "scalatags" % "0.5.3",
+    "com.lihaoyi" %%% "upickle" % "0.3.6",
+    "org.querki" %%% "jquery-facade" % "0.10", // includes jquery webjar!
+    "com.github.japgolly.scalacss" %%% "core" % "0.3.1",
+    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.1"
   ),
   skip in packageJSDependencies := false,
   jsDependencies ++= Seq(

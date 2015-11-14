@@ -72,12 +72,14 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
     import upickle.default._
     println(s"XXX wsReceive ${e.data.toString}")
     val wsMsg = read[WebSocketMessage](e.data.toString)
-    wsMsg.status foreach setStatus
+    wsMsg.commandStatus foreach setCommandStatus
     wsMsg.data foreach setData
+    wsMsg.currentFilterPos foreach setCurrentFilterPos
+    wsMsg.currentDisperserPos foreach setCurrentDisperserPos
   }
 
   // Displays the return status from a submit command
-  private def setStatus(status: SharedCommandStatus): Unit = {
+  private def setCommandStatus(status: SharedCommandStatus): Unit = {
     statusItem.setStatus(status)
     if (status.isError) {
       filterChooser.itemError()
@@ -92,6 +94,16 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   private def setData(data: DemoData): Unit = {
     data.filterOpt.foreach(f ⇒ filterChooser.setSelectedItem(f, notifyListener = false))
     data.disperserOpt.foreach(d ⇒ disperserChooser.setSelectedItem(d, notifyListener = false))
+  }
+
+  // Displays the current filter position (from telemetry)
+  private def setCurrentFilterPos(filterPos: String): Unit = {
+    println(s"XXX set current filter pos to $filterPos")
+  }
+
+  // Displays the current disperser position (from telemetry)
+  private def setCurrentDisperserPos(disperserPos: String): Unit = {
+    println(s"XXX set current disperser pos to $disperserPos")
   }
 
   // Called when a new filter was selected

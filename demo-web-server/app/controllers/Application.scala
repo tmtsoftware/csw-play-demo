@@ -21,7 +21,7 @@ class Application @Inject() (system: ActorSystem) extends Controller with LazyLo
   }
 
   // start the aplication actor
-  val appActor = system.actorOf(ApplicationActor.props)
+  val appActor = system.actorOf(ApplicationActor.props(wsChannel))
 
   // Main entry point
   def index = CSRFAddToken {
@@ -34,14 +34,14 @@ class Application @Inject() (system: ActorSystem) extends Controller with LazyLo
 
   // Submit a command
   def submit(filterOpt: Option[String], disperserOpt: Option[String]) = Action {
-    appActor ! Submit(wsChannel, filterOpt, disperserOpt)
+    appActor ! Submit(filterOpt, disperserOpt)
     // Status messages will be sent by websocket later
     Ok("")
   }
 
   // Gets the current values
   def configGet() = Action {
-    appActor ! ConfigGet(wsChannel)
+    appActor ! ConfigGet
     // Reply will be sent by websocket later
     Ok("")
   }
