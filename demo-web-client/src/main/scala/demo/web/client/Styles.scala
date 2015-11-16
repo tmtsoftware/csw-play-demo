@@ -28,12 +28,16 @@ object Styles extends StyleSheet.Inline {
 
   val comboboxState = style(
     addClassNames("glyphicon", "glyphicon-ok", "input-group-addon", "hidden"),
-    backgroundColor := "transparent",
+    backgroundColor.transparent,
     border.none)
 
   val comboboxLabel = style(
     addClassNames("col-sm-2", "control-label"),
     paddingLeft(0 px))
+
+  val telemetryText = style(
+    paddingLeft(10 px),
+    verticalAlign.middle)
 
   val formButtons = style(
     addClassNames("col-sm-offset-2", "col-sm-10"),

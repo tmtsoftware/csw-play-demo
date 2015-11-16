@@ -29,7 +29,9 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   private val layout = Layout("CSW Play Demo")
   private val form = Form(submitForm)
   private val filterChooser = FilterChooser(filterSelected)
+  private val filterTelemetry = TelemetryItem("filter", FilterChooser.filters)
   private val disperserChooser = DisperserChooser(disperserSelected)
+  private val disperserTelemetry = TelemetryItem("disperser", DisperserChooser.dispersers)
   private val buttons = FormButtons()
   private val statusItem = StatusItem()
   private def divider = {
@@ -48,7 +50,9 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
     head.appendChild(Styles.render[TypedTag[HTMLStyleElement]].render)
 
     form.addItem(filterChooser)
+    form.addItem(filterTelemetry)
     form.addItem(disperserChooser)
+    form.addItem(disperserTelemetry)
 
     buttons.addButton("Refresh", refreshButtonSelected, "button")
     buttons.addButton("Apply", applyButtonSelected, "submit")
@@ -57,6 +61,9 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
     layout.addItem(form)
     layout.addElement(divider)
     layout.addItem(statusItem)
+
+    //    layout.addElement(divider)
+    //    layout.addItem(telemetryItem)
 
     body.appendChild(layout.markup())
   }
@@ -99,11 +106,13 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   // Displays the current filter position (from telemetry)
   private def setCurrentFilterPos(filterPos: String): Unit = {
     println(s"XXX set current filter pos to $filterPos")
+    filterTelemetry.setPos(filterPos)
   }
 
   // Displays the current disperser position (from telemetry)
   private def setCurrentDisperserPos(disperserPos: String): Unit = {
     println(s"XXX set current disperser pos to $disperserPos")
+    disperserTelemetry.setPos(disperserPos)
   }
 
   // Called when a new filter was selected
