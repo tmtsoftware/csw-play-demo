@@ -7,7 +7,7 @@ import org.scalajs.dom._
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLStyleElement
 import scala.scalajs.js
-import scala.scalajs.js.JSApp
+import scala.scalajs.js.{ timers, JSApp }
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.TypedTag
 import scalacss.Defaults._
@@ -42,7 +42,11 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   doLayout()
   initWebSocket()
   statusItem.clearStatus()
-  refreshButtonSelected()
+
+  // Display the current values on start (Safari and Firefox seem to need the delay)
+  timers.setTimeout(500) {
+    refreshButtonSelected()
+  }
 
   // Layout the components on the page
   private def doLayout(): Unit = {
