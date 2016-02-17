@@ -17,7 +17,8 @@ case class FormButtons() extends Displayable {
     import scalacss.ScalatagsCss._
     val styleObj = if (buttonType == "submit") Styles.formButtonPrimary else Styles.formButtonDefault
     buttons.appendChild(
-      button(styleObj, `type` := "button", onclick := listener)(labelStr).render)
+      button(styleObj, `type` := "button", onclick := listener)(labelStr).render
+    )
   }
 
   // HTML markup displaying the label and combobox

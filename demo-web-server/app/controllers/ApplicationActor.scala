@@ -1,15 +1,15 @@
 package controllers
 
-import akka.actor.{ Props, ActorRef, ActorLogging, Actor }
+import akka.actor.{Props, ActorRef, ActorLogging, Actor}
 import csw.services.ccs.AssemblyController
-import csw.services.kvs.{ TelemetryService, TelemetrySubscriber, StateVariableStore, KvsSettings }
+import csw.services.kvs.{TelemetryService, TelemetrySubscriber, StateVariableStore, KvsSettings}
 import csw.services.loc.AccessType.AkkaType
-import csw.services.loc.LocationService.{ Disconnected, ServicesReady }
-import csw.services.loc.{ LocationService, ServiceType, ServiceId, ServiceRef }
-import csw.util.cfg.Configurations.{ ConfigInfo, SetupConfigArg, SetupConfig }
+import csw.services.loc.LocationService.{Disconnected, ServicesReady}
+import csw.services.loc.{LocationService, ServiceType, ServiceId, ServiceRef}
+import csw.util.cfg.Configurations.{ConfigInfo, SetupConfigArg, SetupConfig}
 import csw.util.cfg.Events.StatusEvent
 import csw.util.cfg.StandardKeys
-import demo.web.shared.{ DemoData, SharedCommandStatus, WebSocketMessage }
+import demo.web.shared.{DemoData, SharedCommandStatus, WebSocketMessage}
 import play.api.libs.iteratee.Concurrent.Channel
 import csw.services.ccs.CommandStatus
 

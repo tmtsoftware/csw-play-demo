@@ -3,7 +3,7 @@ package controllers
 import akka.actor.ActorSystem
 import javax.inject._
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import play.api.libs.iteratee.{ Concurrent, Iteratee }
+import play.api.libs.iteratee.{Concurrent, Iteratee}
 import demo.web.shared.Csrf
 import play.api.mvc._
 import play.filters.csrf.CSRFAddToken

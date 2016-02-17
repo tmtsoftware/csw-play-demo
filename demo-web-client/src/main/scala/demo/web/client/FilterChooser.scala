@@ -16,7 +16,8 @@ object FilterChooser {
     "z_G0304",
     "Z_G0322",
     "Y_G0323",
-    "u_G0308")
+    "u_G0308"
+  )
 }
 
 /**

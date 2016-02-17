@@ -1,13 +1,13 @@
 package demo.web.client
 
 import demo.web.shared.SharedCommandStatus
-import demo.web.shared.{ DemoData, WebSocketMessage }
+import demo.web.shared.{DemoData, WebSocketMessage}
 import org.scalajs.dom
 import org.scalajs.dom._
 import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLStyleElement
 import scala.scalajs.js
-import scala.scalajs.js.{ timers, JSApp }
+import scala.scalajs.js.{timers, JSApp}
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.TypedTag
 import scalacss.Defaults._
@@ -129,7 +129,7 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
 
   private def refreshButtonSelected(): Unit = {
     val url = Routes.configGet()
-    Ajax.post(url, headers = Map("Content-Type" -> "text/plain")).map { r ⇒
+    Ajax.post(url, headers = Map("Content-Type" → "text/plain")).map { r ⇒
       // XXX TODO Check result status
     }
   }
@@ -139,7 +139,7 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
     val disperser = disperserChooser.getSelectedItem
 
     val url = Routes.submit(filter, disperser)
-    Ajax.post(url, headers = Map("Content-Type" -> "text/plain")).map { r ⇒
+    Ajax.post(url, headers = Map("Content-Type" → "text/plain")).map { r ⇒
       // XXX TODO Check result status
     }
 

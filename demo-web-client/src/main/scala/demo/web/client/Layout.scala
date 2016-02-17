@@ -16,7 +16,9 @@ case class Layout(titleStr: String) extends Displayable {
     div(cls := "container")(
       div(Styles.layoutPanel)(
         div(cls := "panel-heading")(titleStr),
-        panelBody)).render
+        panelBody
+      )
+    ).render
 
   override def markup(): Element = layout
 

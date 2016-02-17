@@ -30,7 +30,8 @@ class FormComboBox(labelStr: String, choices: List[String], listener: String ⇒
   private val selectItem = {
     import scalatags.JsDom.all._
     select(id := idStr, cls := "form-control", onchange := itemSelected _)(
-      choices.map(s ⇒ option(value := s)(s))).render
+      choices.map(s ⇒ option(value := s)(s))
+    ).render
   }
 
   // called when an item is selected
@@ -65,7 +66,8 @@ class FormComboBox(labelStr: String, choices: List[String], listener: String ⇒
     import scalacss.ScalatagsCss._
     div(cls := "form-group")(
       label(Styles.comboboxLabel, `for` := idStr)(labelStr),
-      div(cls := "col-sm-10 input-group")(selectItem, " ", selectState)).render
+      div(cls := "col-sm-10 input-group")(selectItem, " ", selectState)
+    ).render
   }
 
   /**

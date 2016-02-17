@@ -7,7 +7,9 @@ package demo.web.shared
  * @param commandStatus the status of a submitted command
  * @param data data requested with configGet (current state)
  */
-case class WebSocketMessage(commandStatus: Option[SharedCommandStatus] = None,
-                            currentFilterPos: Option[String] = None,
-                            currentDisperserPos: Option[String] = None,
-                            data: Option[DemoData] = None)
+case class WebSocketMessage(
+  commandStatus:       Option[SharedCommandStatus] = None,
+  currentFilterPos:    Option[String]              = None,
+  currentDisperserPos: Option[String]              = None,
+  data:                Option[DemoData]            = None
+)

@@ -15,7 +15,8 @@ case class StatusItem(idStr: String = "status") extends Displayable {
       span(style := "margin-left:15px;"),
       span(id := s"busy$idStr", cls := "glyphicon glyphicon-refresh"),
       span(style := "margin-left:15px;"),
-      span(id := idStr, cls := "label", " ")).render
+      span(id := idStr, cls := "label", " ")
+    ).render
   }
 
   private def statusItem = $(s"#$idStr")

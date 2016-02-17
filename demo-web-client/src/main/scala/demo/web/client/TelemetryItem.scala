@@ -40,7 +40,10 @@ case class TelemetryItem(name: String, choices: List[String]) extends Displayabl
           for (i ← choices.indices) yield {
             li(id := itemIdStr(i), cls := "disabled")(a(href := "#")(i + 1))
           },
-          span(Styles.telemetryText, id := textIdStr)(" ")))).render
+          span(Styles.telemetryText, id := textIdStr)(" ")
+        )
+      )
+    ).render
   }
 
 }
