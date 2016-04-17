@@ -18,8 +18,6 @@ import csw.services.loc.LocationService.ResolvedAkkaLocation
  * Defines props and messages received by the companion class
  */
 object ApplicationActor {
-  LocationService.initInterface()
-
   def props(wsChannel: Channel[String]) = Props(classOf[ApplicationActor], wsChannel)
 
   sealed trait Assembly1ActorMessage
