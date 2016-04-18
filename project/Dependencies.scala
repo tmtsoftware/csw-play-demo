@@ -7,7 +7,7 @@ object Dependencies {
 
   // web server dependencies
   val playScalajsScripts = "com.vmunier" %% "play-scalajs-scripts" % "0.4.0"
-  val upickle = "com.lihaoyi" %% "upickle" % "0.3.8"
+  val upickle = "com.lihaoyi" %% "upickle" % "0.3.9"
   val jqueryUi = "org.webjars" % "jquery-ui" % "1.11.4"
   val webjarsPlay = "org.webjars" %% "webjars-play" % "2.4.0-1"
   val bootstrap = "org.webjars" % "bootstrap" % "3.3.4"
@@ -19,9 +19,11 @@ object Dependencies {
     "org.scala-js" %%% "scalajs-dom" % "0.9.0",
     "com.lihaoyi" %%% "scalatags" % "0.5.4",
     "com.lihaoyi" %%% "upickle" % "0.3.8",
-    "org.querki" %%% "jquery-facade" % "1.0-RC2",
-    "com.github.japgolly.scalacss" %%% "core" % "0.3.1",
-    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.1"
+    "org.querki" %%% "jquery-facade" % "1.0-RC3",
+//    "com.github.japgolly.scalacss" %%% "core" % "0.4.0",
+//    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.4.0"
+  "com.github.japgolly.scalacss" %%% "core" % "0.3.2",
+  "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.2"
   ))
 
   // ScalaJS client JavaScript dependencies
