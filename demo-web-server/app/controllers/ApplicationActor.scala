@@ -55,7 +55,7 @@ class ApplicationActor(wsChannel: Channel[String]) extends Actor with ActorLoggi
   // and forward that info to the web app via web socket
   val telemetrySubscriber = context.actorOf(TelemetrySubscriberActor.props(wsChannel))
 
-  override def receive: Receive = trackerClientReceive orElse {
+  override def receive: Receive = trackerClientReceive() orElse {
     case ApplicationActor.Submit(filterOpt, disperserOpt) ⇒
       getLocation(connection).collect {
         case r @ ResolvedAkkaLocation(_, _, _, actorRefOpt) ⇒
