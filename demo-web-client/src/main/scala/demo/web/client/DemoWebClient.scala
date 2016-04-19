@@ -11,15 +11,13 @@ import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.TypedTag
 import scalacss.Defaults._
 import scalacss.ScalatagsCss._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Main class for the demo web app.
  *
- * @param csrfToken server token used for security
  * @param wsBaseUrl web socket base URL
  */
-case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
+case class DemoWebClient(wsBaseUrl: String) {
 
   private val head = dom.document.head
   private val body = dom.document.body
@@ -165,8 +163,7 @@ object DemoWebClient extends JSApp {
   @JSExport
   def init(settings: js.Dynamic) = {
     val wsBaseUrl = settings.wsBaseUrl.toString
-    val csrfToken = settings.csrfToken.toString
-    DemoWebClient(csrfToken, wsBaseUrl)
+    DemoWebClient(wsBaseUrl)
   }
 
   // Main entry point (not used, see init() above)

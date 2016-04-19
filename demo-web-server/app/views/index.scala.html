@@ -1,12 +1,10 @@
-@import demo.web.shared.Csrf
-@(csrfToken: Csrf)(implicit request: RequestHeader)
+@()(implicit request: RequestHeader)
 
 @main("CSW Play Demo") {
     @playscalajs.html.scripts("demowebclient")
 
     <script>
        var settings = {
-         "csrfToken": "@csrfToken",
          "wsBaseUrl": "@routes.Application.ws.webSocketURL()"
         };
 

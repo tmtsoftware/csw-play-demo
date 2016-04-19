@@ -20,11 +20,9 @@ class Application @Inject() (implicit system: ActorSystem, materializer: Materia
   }
 
   // Main entry point
-  def index = CSRFAddToken {
+  def index = {
     Action { implicit request ⇒
-      import play.filters.csrf.CSRF
-      val token = CSRF.getToken(request).map(t ⇒ Csrf(t.value)).getOrElse(Csrf(""))
-      Ok(views.html.index(token))
+      Ok(views.html.index())
     }
   }
 }
