@@ -20,10 +20,10 @@ object Dependencies {
     "com.lihaoyi" %%% "scalatags" % "0.5.4",
     "com.lihaoyi" %%% "upickle" % "0.3.8",
     "org.querki" %%% "jquery-facade" % "1.0-RC3",
-//    "com.github.japgolly.scalacss" %%% "core" % "0.4.0",
-//    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.4.0"
-  "com.github.japgolly.scalacss" %%% "core" % "0.3.2",
-  "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.2"
+    "com.github.japgolly.scalacss" %%% "core" % "0.4.1",
+    "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.4.1"
+//  "com.github.japgolly.scalacss" %%% "core" % "0.3.2",
+//  "com.github.japgolly.scalacss" %%% "ext-scalatags" % "0.3.2"
   ))
 
   // ScalaJS client JavaScript dependencies

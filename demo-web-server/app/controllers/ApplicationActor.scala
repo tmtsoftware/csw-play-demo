@@ -8,7 +8,6 @@ import csw.util.cfg.Configurations.{ConfigInfo, SetupConfig, SetupConfigArg}
 import csw.util.cfg.Events.StatusEvent
 import csw.util.cfg.StandardKeys
 import demo.web.shared.{DemoData, SharedCommandStatus, WebSocketMessage}
-import play.api.libs.iteratee.Concurrent.Channel
 import csw.services.ccs.CommandStatus
 import csw.services.loc.ComponentType.Assembly
 import csw.services.loc.Connection.AkkaConnection
@@ -18,32 +17,17 @@ import csw.services.loc.LocationService.ResolvedAkkaLocation
  * Defines props and messages received by the companion class
  */
 object ApplicationActor {
-  def props(wsChannel: Channel[String]) = Props(classOf[ApplicationActor], wsChannel)
-
-  sealed trait Assembly1ActorMessage
-
-  /**
-   * Message to submit a config to the assembly
-   *
-   * @param filterOpt    optional filter value
-   * @param disperserOpt optional disperser value
-   */
-  case class Submit(filterOpt: Option[String], disperserOpt: Option[String]) extends Assembly1ActorMessage
-
-  /**
-   * Message to get the current configuration from the assembly
-   */
-  case object ConfigGet
-
+  def props(wsActor: ActorRef) = Props(classOf[ApplicationActor], wsActor)
 }
 
 /**
  * An actor that implements the play server
  *
- * @param wsChannel web socket to use to send results to client
+ * @param wsActor actor used to send messages to the websocket
  */
-class ApplicationActor(wsChannel: Channel[String]) extends Actor with ActorLogging with LocationTrackerClientActor {
+class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with LocationTrackerClientActor {
 
+  import demo.web.shared.{WebSocketMessage, WebSocketRequest}
   import context.dispatcher
 
   val assemblyName = "Assembly-1"
@@ -53,20 +37,30 @@ class ApplicationActor(wsChannel: Channel[String]) extends Actor with ActorLoggi
 
   // Subscribe to telemetry to get the simulated values of the filter/disperser wheel moving
   // and forward that info to the web app via web socket
-  val telemetrySubscriber = context.actorOf(TelemetrySubscriberActor.props(wsChannel))
+  val telemetrySubscriber = context.actorOf(TelemetrySubscriberActor.props(wsActor))
 
   override def receive: Receive = trackerClientReceive() orElse {
-    case ApplicationActor.Submit(filterOpt, disperserOpt) ⇒
-      getLocation(connection).collect {
-        case r @ ResolvedAkkaLocation(_, _, _, actorRefOpt) ⇒
-          submit(actorRefOpt.get, filterOpt, disperserOpt)
-        case x ⇒ log.warning(s"Can't submit since assembly location is not resolved: $x")
+    case msg: String ⇒ handleWebSocketRequest(msg)
+    case x           ⇒ log.error(s"Received unexpected message: $x")
+  }
+
+  // Handles an incoming websocket request
+  def handleWebSocketRequest(msg: String): Unit = {
+    import upickle.default._
+    try {
+      val request = read[WebSocketRequest](msg)
+      request.submit.foreach {
+        case DemoData(filterOpt, disperserOpt) ⇒
+          getLocation(connection).collect {
+            case r @ ResolvedAkkaLocation(_, _, _, actorRefOpt) ⇒
+              submit(actorRefOpt.get, filterOpt, disperserOpt)
+            case x ⇒ log.warning(s"Can't submit since assembly location is not resolved: $x")
+          }
       }
-
-    case ApplicationActor.ConfigGet ⇒
-      configGet()
-
-    case x ⇒ log.error(s"Received unexpected message: $x")
+      request.configGet.foreach(_ ⇒ configGet())
+    } catch {
+      case ex: Exception ⇒ log.error("Invalid message received: $msg", ex)
+    }
   }
 
   /**
@@ -86,7 +80,7 @@ class ApplicationActor(wsChannel: Channel[String]) extends Actor with ActorLoggi
     val configs = List(filterConfig, disperserConfig).flatten
     if (configs.nonEmpty) {
       val setupConfigArg = SetupConfigArg(configInfo, configs: _*)
-      context.actorOf(WsReplyActor.props(wsChannel, assembly, setupConfigArg))
+      context.actorOf(WsReplyActor.props(wsActor, assembly, setupConfigArg))
     }
   }
 
@@ -95,10 +89,6 @@ class ApplicationActor(wsChannel: Channel[String]) extends Actor with ActorLoggi
    */
   def configGet(): Unit = {
     import upickle.default._
-    // XXX TODO - should be passed in from outside
-    val obsId = "obs0001"
-    val configInfo = ConfigInfo(obsId)
-
     val settings = KvsSettings(context.system)
     val svs = StateVariableStore(settings)
     for {
@@ -110,15 +100,16 @@ class ApplicationActor(wsChannel: Channel[String]) extends Actor with ActorLoggi
       val demoData = DemoData(filter, disperser)
       val msg = WebSocketMessage(data = Some(demoData))
       val json = write(msg)
-      wsChannel.push(json)
+      wsActor ! json
     }
   }
 }
 
 // An actor that submits a config to and assembly and then forwards assembly status values to the client via websocket
+// (using wsActor)
 object WsReplyActor {
-  def props(wsChannel: Channel[String], assembly: ActorRef, setupConfigArg: SetupConfigArg) =
-    Props(classOf[WsReplyActor], wsChannel, assembly, setupConfigArg)
+  def props(wsActor: ActorRef, assembly: ActorRef, setupConfigArg: SetupConfigArg) =
+    Props(classOf[WsReplyActor], wsActor, assembly, setupConfigArg)
 
   // Converts a CommandStatus received from the assembly to a SharedCommandStatus that can be sent to the web app
   def statusToSharedStatus(s: CommandStatus): SharedCommandStatus = {
@@ -127,13 +118,13 @@ object WsReplyActor {
 }
 
 /**
- * An actor that submits a config to and assembly and then forwards assembly status values to the client via websocket
+ * An actor that submits a config to an assembly and then forwards assembly status values to the client via websocket
  *
- * @param wsChannel      Websocket to client
+ * @param wsActor        actor managing websocket to client
  * @param assembly       target assembly
  * @param setupConfigArg the config to submit to the assembly
  */
-class WsReplyActor(wsChannel: Channel[String], assembly: ActorRef, setupConfigArg: SetupConfigArg) extends Actor with ActorLogging {
+class WsReplyActor(wsActor: ActorRef, assembly: ActorRef, setupConfigArg: SetupConfigArg) extends Actor with ActorLogging {
 
   import WsReplyActor._
   import upickle.default._
@@ -142,10 +133,10 @@ class WsReplyActor(wsChannel: Channel[String], assembly: ActorRef, setupConfigAr
 
   override def receive: Receive = {
     case status: CommandStatus ⇒
-      log.info(s"Replying with command status: $status to wsChannel $wsChannel")
+      log.info(s"Replying with command status: $status to websocket")
       val msg = WebSocketMessage(commandStatus = Some(statusToSharedStatus(status)))
       val json = write(msg)
-      wsChannel.push(json)
+      wsActor ! json
       if (status.isDone) context.stop(self)
 
     case x ⇒ log.error(s"Received unexpected message: $x")
@@ -154,16 +145,16 @@ class WsReplyActor(wsChannel: Channel[String], assembly: ActorRef, setupConfigAr
 
 // An actor that subscribes to filter and disperser telemetry values and forwards them to the client via websocket
 object TelemetrySubscriberActor {
-  def props(wsChannel: Channel[String]) =
-    Props(classOf[TelemetrySubscriberActor], wsChannel)
+  def props(wsActor: ActorRef) =
+    Props(classOf[TelemetrySubscriberActor], wsActor)
 }
 
 /**
  * An actor that subscribes to filter and disperser telemetry values and forwards them to the client via websocket
  *
- * @param wsChannel Websocket to client
+ * @param wsActor Websocket to client
  */
-class TelemetrySubscriberActor(wsChannel: Channel[String]) extends TelemetrySubscriber {
+class TelemetrySubscriberActor(wsActor: ActorRef) extends TelemetrySubscriber {
 
   import upickle.default._
 
@@ -179,7 +170,7 @@ class TelemetrySubscriberActor(wsChannel: Channel[String]) extends TelemetrySubs
         WebSocketMessage(currentDisperserPos = event.get(StandardKeys.disperser))
       val json = write(msg)
       log.info(s"Sending websocket message: $json")
-      wsChannel.push(json)
+      wsActor ! json
 
     case x ⇒ log.error(s"Received unexpected message: $x")
   }

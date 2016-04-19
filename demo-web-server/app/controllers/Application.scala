@@ -2,26 +2,22 @@ package controllers
 
 import akka.actor.ActorSystem
 import javax.inject._
+
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import play.api.libs.iteratee.{Concurrent, Iteratee}
-import demo.web.shared.Csrf
+import demo.web.shared._
 import play.api.mvc._
 import play.filters.csrf.CSRFAddToken
-import ApplicationActor._
+import akka.stream.Materializer
+import play.api.libs.streams.ActorFlow
 
 // Main controller
 @Singleton
-class Application @Inject() (system: ActorSystem) extends Controller with LazyLogging {
+class Application @Inject() (implicit system: ActorSystem, materializer: Materializer) extends Controller with LazyLogging {
 
-  // Websocket
-  val (wsEnumerator, wsChannel) = Concurrent.broadcast[String]
-
-  def ws = WebSocket.using[String] { request ⇒
-    (Iteratee.ignore, wsEnumerator)
+  // websocket to client
+  def ws = WebSocket.accept[String, String] { request ⇒
+    ActorFlow.actorRef(out ⇒ ApplicationActor.props(out))
   }
-
-  // start the aplication actor
-  val appActor = system.actorOf(ApplicationActor.props(wsChannel))
 
   // Main entry point
   def index = CSRFAddToken {
@@ -30,20 +26,6 @@ class Application @Inject() (system: ActorSystem) extends Controller with LazyLo
       val token = CSRF.getToken(request).map(t ⇒ Csrf(t.value)).getOrElse(Csrf(""))
       Ok(views.html.index(token))
     }
-  }
-
-  // Submit a command
-  def submit(filterOpt: Option[String], disperserOpt: Option[String]) = Action {
-    appActor ! Submit(filterOpt, disperserOpt)
-    // Status messages will be sent by websocket later
-    Ok("")
-  }
-
-  // Gets the current values
-  def configGet() = Action {
-    appActor ! ConfigGet
-    // Reply will be sent by websocket later
-    Ok("")
   }
 }
 

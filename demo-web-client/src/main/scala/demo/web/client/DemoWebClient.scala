@@ -1,13 +1,12 @@
 package demo.web.client
 
-import demo.web.shared.SharedCommandStatus
-import demo.web.shared.{DemoData, WebSocketMessage}
+import demo.web.shared.{DemoData, SharedCommandStatus, WebSocketMessage, WebSocketRequest}
 import org.scalajs.dom
 import org.scalajs.dom._
-import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.raw.HTMLStyleElement
+
 import scala.scalajs.js
-import scala.scalajs.js.{timers, JSApp}
+import scala.scalajs.js.{JSApp, timers}
 import scala.scalajs.js.annotation.JSExport
 import scalatags.JsDom.TypedTag
 import scalacss.Defaults._
@@ -40,7 +39,10 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   }
 
   doLayout()
-  initWebSocket()
+
+  // WebSocket to server
+  private val websocket = initWebSocket()
+
   statusItem.clearStatus()
 
   // Display the current values on start (Safari and Firefox seem to need the delay)
@@ -73,9 +75,10 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   }
 
   // Initialize a websocket for status messages on a running submit
-  private def initWebSocket(): Unit = {
+  private def initWebSocket(): dom.WebSocket = {
     val socket = new dom.WebSocket(wsBaseUrl)
     socket.onmessage = wsReceive _
+    socket
   }
 
   // Receive a status message from the server websocket
@@ -128,21 +131,19 @@ case class DemoWebClient(csrfToken: String, wsBaseUrl: String) {
   }
 
   private def refreshButtonSelected(): Unit = {
-    val url = Routes.configGet()
-    Ajax.post(url, headers = Map("Content-Type" → "text/plain")).map { r ⇒
-      // XXX TODO Check result status
-    }
+    import upickle.default._
+    val request = WebSocketRequest(configGet = Some(()))
+    val json = write(request)
+    websocket.send(json)
   }
 
   private def applyButtonSelected(): Unit = {
+    import upickle.default._
     val filter = filterChooser.getSelectedItem
     val disperser = disperserChooser.getSelectedItem
-
-    val url = Routes.submit(filter, disperser)
-    Ajax.post(url, headers = Map("Content-Type" → "text/plain")).map { r ⇒
-      // XXX TODO Check result status
-    }
-
+    val request = WebSocketRequest(submit = Some(DemoData(filterOpt = Some(filter), disperserOpt = Some(disperser))))
+    val json = write(request)
+    websocket.send(json)
   }
 
   private def submitForm(e: Event): Unit = {
