@@ -4,9 +4,7 @@ import akka.actor.ActorSystem
 import javax.inject._
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import demo.web.shared._
 import play.api.mvc._
-import play.filters.csrf.CSRFAddToken
 import akka.stream.Materializer
 import play.api.libs.streams.ActorFlow
 
