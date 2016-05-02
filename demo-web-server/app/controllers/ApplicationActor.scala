@@ -11,7 +11,7 @@ import csw.services.loc.ComponentType.Assembly
 import csw.services.loc.Connection.AkkaConnection
 import csw.services.loc.LocationService.{Location, ResolvedAkkaLocation}
 import csw.util.akka.PublisherActor
-import csw.util.cfg.Configurations.StateVariable.CurrentState
+import csw.util.cfg.StateVariable.CurrentState
 
 /**
  * Defines props and messages received by the companion class
