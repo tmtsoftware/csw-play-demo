@@ -1,17 +1,17 @@
 package controllers
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import csw.pkgDemo.hcd2.Hcd2
 import csw.services.ccs.AssemblyController
 import csw.services.loc._
-import csw.util.cfg.Configurations.{ConfigInfo, SetupConfig, SetupConfigArg}
-import csw.util.cfg.StandardKeys
+import csw.util.config.Configurations.{ConfigInfo, SetupConfig, SetupConfigArg}
 import demo.web.shared.{DemoData, SharedCommandStatus, WebSocketMessage}
 import csw.services.ccs.CommandStatus
 import csw.services.loc.ComponentType.Assembly
 import csw.services.loc.Connection.AkkaConnection
 import csw.services.loc.LocationService.{Location, ResolvedAkkaLocation}
 import csw.util.akka.PublisherActor
-import csw.util.cfg.StateVariable.CurrentState
+import csw.util.config.StateVariable.CurrentState
 
 /**
  * Defines props and messages received by the companion class
@@ -104,11 +104,11 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
     import upickle.default._
 
     log.info(s"Received status update from assembly: $s")
-    val (msg: WebSocketMessage, data: DemoData) = if (s.prefix == StandardKeys.filterPrefix) {
-      val filter = s.get(StandardKeys.filter)
+    val (msg: WebSocketMessage, data: DemoData) = if (s.prefix == Hcd2.filterPrefix) {
+      val filter = s.get(Hcd2.filterKey, 0)
       (WebSocketMessage(currentFilterPos = filter), DemoData(filterOpt = filter, disperserOpt = currentData.disperserOpt))
     } else {
-      val disperser = s.get(StandardKeys.disperser)
+      val disperser = s.get(Hcd2.disperserKey, 0)
       (WebSocketMessage(currentDisperserPos = disperser), DemoData(filterOpt = currentData.filterOpt, disperserOpt = disperser))
     }
     currentData = data
@@ -148,8 +148,8 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
     val obsId = "obs0001"
     val configInfo = ConfigInfo(obsId)
 
-    val filterConfig = filterOpt.map(f ⇒ SetupConfig(StandardKeys.filterPrefix).set(StandardKeys.filter, f))
-    val disperserConfig = disperserOpt.map(d ⇒ SetupConfig(StandardKeys.disperserPrefix).set(StandardKeys.disperser, d))
+    val filterConfig = filterOpt.map(f ⇒ SetupConfig(Hcd2.filterPrefix).set(Hcd2.filterKey, f))
+    val disperserConfig = disperserOpt.map(d ⇒ SetupConfig(Hcd2.disperserPrefix).set(Hcd2.disperserKey, d))
     val configs = List(filterConfig, disperserConfig).flatten
     if (configs.nonEmpty) {
       val setupConfigArg = SetupConfigArg(configInfo, configs: _*)

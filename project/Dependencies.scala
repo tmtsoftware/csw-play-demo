@@ -13,6 +13,7 @@ object Dependencies {
   val bootstrap = "org.webjars" % "bootstrap" % "3.3.4"
   val bootstrapTable = "org.webjars.bower" % "bootstrap-table" % "1.7.0"
   val pkg = "org.tmt" %% "pkg" % "0.2-SNAPSHOT"
+  val hcd2 = "org.tmt" %% "hcd2" % "0.2-SNAPSHOT"
 
   // ScalaJS web client scala dependencies
   val clientDeps = Def.setting(Seq(
