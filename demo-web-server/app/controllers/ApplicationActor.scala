@@ -11,7 +11,7 @@ import csw.services.loc.ComponentType.Assembly
 import csw.services.loc.Connection.AkkaConnection
 import csw.services.loc.LocationService.{Location, ResolvedAkkaLocation}
 import csw.util.akka.PublisherActor
-import csw.util.config.StateVariable.CurrentState
+import csw.util.config.StateVariable._
 
 /**
  * Defines props and messages received by the companion class
@@ -92,29 +92,31 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
   // Receive actor messages
   override def receive: Receive = trackerClientReceive orElse {
     // A status update from the assembly
-    case s: CurrentState ⇒ handleStatusUpdate(s)
+    case s: CurrentStates ⇒ handleStatusUpdate(s)
 
     // A web socket message from the client
-    case msg: String     ⇒ handleWebSocketRequest(msg)
+    case msg: String      ⇒ handleWebSocketRequest(msg)
 
-    case x               ⇒ log.error(s"Received unexpected message: $x")
+    case x                ⇒ log.error(s"Received unexpected message: $x from ${sender()}")
   }
 
-  private def handleStatusUpdate(s: CurrentState): Unit = {
+  private def handleStatusUpdate(currentStates: CurrentStates): Unit = {
     import upickle.default._
 
-    log.info(s"Received status update from assembly: $s")
-    val (msg: WebSocketMessage, data: DemoData) = if (s.prefix == Hcd2.filterPrefix) {
-      val filter = s.get(Hcd2.filterKey, 0)
-      (WebSocketMessage(currentFilterPos = filter), DemoData(filterOpt = filter, disperserOpt = currentData.disperserOpt))
-    } else {
-      val disperser = s.get(Hcd2.disperserKey, 0)
-      (WebSocketMessage(currentDisperserPos = disperser), DemoData(filterOpt = currentData.filterOpt, disperserOpt = disperser))
+    currentStates.states.foreach { s ⇒
+      log.info(s"Received status update from assembly: $s")
+      val (msg: WebSocketMessage, data: DemoData) = if (s.prefix == Hcd2.filterPrefix) {
+        val filter = s.get(Hcd2.filterKey, 0)
+        (WebSocketMessage(currentFilterPos = filter), DemoData(filterOpt = filter, disperserOpt = currentData.disperserOpt))
+      } else {
+        val disperser = s.get(Hcd2.disperserKey, 0)
+        (WebSocketMessage(currentDisperserPos = disperser), DemoData(filterOpt = currentData.filterOpt, disperserOpt = disperser))
+      }
+      currentData = data
+      val json = write(msg)
+      log.info(s"Sending websocket message: $json")
+      wsActor ! json
     }
-    currentData = data
-    val json = write(msg)
-    log.info(s"Sending websocket message: $json")
-    wsActor ! json
   }
 
   // Handles an incoming websocket request
