@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import csw.pkgDemo.hcd2.Hcd2
 import csw.services.ccs.AssemblyController
 import csw.services.loc._
-import csw.util.config.Configurations.{ConfigInfo, SetupConfig, SetupConfigArg}
+import csw.util.config.Configurations.SetupConfigArg
 import demo.web.shared.{DemoData, SharedCommandStatus, WebSocketMessage}
 import csw.services.ccs.CommandStatus
 import csw.services.loc.ComponentType.Assembly
@@ -106,10 +106,10 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
     currentStates.states.foreach { s ⇒
       log.info(s"Received status update from assembly: $s")
       val (msg: WebSocketMessage, data: DemoData) = if (s.prefix == Hcd2.filterPrefix) {
-        val filter = s.get(Hcd2.filterKey, 0)
+        val filter = s.get(Hcd2.filterKey).map(_.head)
         (WebSocketMessage(currentFilterPos = filter), DemoData(filterOpt = filter, disperserOpt = currentData.disperserOpt))
       } else {
-        val disperser = s.get(Hcd2.disperserKey, 0)
+        val disperser = s.get(Hcd2.disperserKey).map(_.head)
         (WebSocketMessage(currentDisperserPos = disperser), DemoData(filterOpt = currentData.filterOpt, disperserOpt = disperser))
       }
       currentData = data
@@ -146,15 +146,15 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
    * @param disperserOpt optional disperser setting
    */
   def submit(assembly: ActorRef, filterOpt: Option[String], disperserOpt: Option[String]): Unit = {
+    import csw.util.config.ConfigDSL._
     // XXX TODO - should be passed in from outside
     val obsId = "obs0001"
-    val configInfo = ConfigInfo(obsId)
 
-    val filterConfig = filterOpt.map(f ⇒ SetupConfig(Hcd2.filterPrefix).set(Hcd2.filterKey, f))
-    val disperserConfig = disperserOpt.map(d ⇒ SetupConfig(Hcd2.disperserPrefix).set(Hcd2.disperserKey, d))
+    val filterConfig = filterOpt.map(f ⇒ sc(Hcd2.filterPrefix, Hcd2.filterKey → f))
+    val disperserConfig = disperserOpt.map(d ⇒ sc(Hcd2.disperserPrefix, Hcd2.disperserKey → d))
     val configs = List(filterConfig, disperserConfig).flatten
     if (configs.nonEmpty) {
-      val setupConfigArg = SetupConfigArg(configInfo, configs: _*)
+      val setupConfigArg = sca(obsId, configs: _*)
       context.actorOf(ApplicationActor.WsReplyActor.props(wsActor, assembly, setupConfigArg))
     }
   }
