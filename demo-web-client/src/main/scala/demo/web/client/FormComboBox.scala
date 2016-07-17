@@ -8,7 +8,7 @@ import org.querki.jquery._
  * Simple ComboBox for a form class that displays a list of strings and a glyph indicating
  * if the item has changed or was successfully applied.
  */
-class FormComboBox(labelStr: String, choices: List[String], listener: String ⇒ Unit) extends Displayable {
+class FormComboBox(labelStr: String, choices: List[String], listener: String => Unit) extends Displayable {
 
   val idStr = labelStr.toLowerCase
   val stateIdStr = idStr + "State"
@@ -30,7 +30,7 @@ class FormComboBox(labelStr: String, choices: List[String], listener: String ⇒
   private val selectItem = {
     import scalatags.JsDom.all._
     select(id := idStr, cls := "form-control", onchange := itemSelected _)(
-      choices.map(s ⇒ option(value := s)(s))
+      choices.map(s => option(value := s)(s))
     ).render
   }
 

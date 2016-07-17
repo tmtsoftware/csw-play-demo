@@ -24,4 +24,4 @@ object FilterChooser {
  * Manages the filter combobox
  * @param listener notified when the user makes a selection
  */
-case class FilterChooser(listener: String ⇒ Unit) extends FormComboBox("Filter", FilterChooser.filters, listener)
+case class FilterChooser(listener: String => Unit) extends FormComboBox("Filter", FilterChooser.filters, listener)

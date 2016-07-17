@@ -5,7 +5,7 @@ import org.scalajs.dom._
 /**
  * An empty form that you can add items to
  */
-case class Form(handler: Event ⇒ Unit) extends Displayable {
+case class Form(handler: Event => Unit) extends Displayable {
   val formItem = {
     import scalatags.JsDom.all._
     import scalacss.ScalatagsCss._

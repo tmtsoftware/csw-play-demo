@@ -24,4 +24,4 @@ object DisperserChooser {
  * Manages the disperser combobox
  * @param listener notified when the user makes a selection
  */
-case class DisperserChooser(listener: String ⇒ Unit) extends FormComboBox("Disperser", DisperserChooser.dispersers, listener)
+case class DisperserChooser(listener: String => Unit) extends FormComboBox("Disperser", DisperserChooser.dispersers, listener)

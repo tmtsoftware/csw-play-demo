@@ -46,14 +46,14 @@ object ApplicationActor {
     assembly ! AssemblyController.Submit(setupConfigArg)
 
     override def receive: Receive = {
-      case status: CommandStatus ⇒
+      case status: CommandStatus =>
         log.info(s"Replying with command status: $status to websocket")
         val msg = WebSocketMessage(commandStatus = Some(statusToSharedStatus(status)))
         val json = write(msg)
         wsActor ! json
         if (status.isDone) context.stop(self)
 
-      case x ⇒ log.error(s"Received unexpected message: $x")
+      case x => log.error(s"Received unexpected message: $x")
     }
   }
 
@@ -83,7 +83,7 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
   // Called when the assembly location has been resolved: Subscribe to status values from the assembly
   override protected def allResolved(locations: Set[Location]): Unit = {
     val x = locations.collect {
-      case r @ ResolvedAkkaLocation(_, _, _, actorRefOpt) ⇒ actorRefOpt
+      case r @ ResolvedAkkaLocation(_, _, _, actorRefOpt) => actorRefOpt
     }
     val set = x.flatten
     set.foreach(_ ! PublisherActor.Subscribe)
@@ -92,18 +92,18 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
   // Receive actor messages
   override def receive: Receive = trackerClientReceive orElse {
     // A status update from the assembly
-    case s: CurrentStates ⇒ handleStatusUpdate(s)
+    case s: CurrentStates => handleStatusUpdate(s)
 
     // A web socket message from the client
-    case msg: String      ⇒ handleWebSocketRequest(msg)
+    case msg: String      => handleWebSocketRequest(msg)
 
-    case x                ⇒ log.error(s"Received unexpected message: $x from ${sender()}")
+    case x                => log.error(s"Received unexpected message: $x from ${sender()}")
   }
 
   private def handleStatusUpdate(currentStates: CurrentStates): Unit = {
     import upickle.default._
 
-    currentStates.states.foreach { s ⇒
+    currentStates.states.foreach { s =>
       log.info(s"Received status update from assembly: $s")
       val (msg: WebSocketMessage, data: DemoData) = if (s.prefix == Hcd2.filterPrefix) {
         val filter = s.get(Hcd2.filterKey).map(_.head)
@@ -125,16 +125,16 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
     try {
       val request = read[WebSocketRequest](msg)
       request.submit.foreach {
-        case DemoData(filterOpt, disperserOpt) ⇒
+        case DemoData(filterOpt, disperserOpt) =>
           getLocation(connection).collect {
-            case r @ ResolvedAkkaLocation(_, _, _, actorRefOpt) ⇒
+            case r @ ResolvedAkkaLocation(_, _, _, actorRefOpt) =>
               submit(actorRefOpt.get, filterOpt, disperserOpt)
-            case x ⇒ log.warning(s"Can't submit since assembly location is not resolved: $x")
+            case x => log.warning(s"Can't submit since assembly location is not resolved: $x")
           }
       }
-      request.configGet.foreach(_ ⇒ configGet())
+      request.configGet.foreach(_ => configGet())
     } catch {
-      case ex: Exception ⇒ log.error("Invalid message received: $msg", ex)
+      case ex: Exception => log.error("Invalid message received: $msg", ex)
     }
   }
 
@@ -150,8 +150,8 @@ class ApplicationActor(wsActor: ActorRef) extends Actor with ActorLogging with L
     // XXX TODO - should be passed in from outside
     val obsId = "obs0001"
 
-    val filterConfig = filterOpt.map(f ⇒ sc(Hcd2.filterPrefix, Hcd2.filterKey → f))
-    val disperserConfig = disperserOpt.map(d ⇒ sc(Hcd2.disperserPrefix, Hcd2.disperserKey → d))
+    val filterConfig = filterOpt.map(f => sc(Hcd2.filterPrefix, Hcd2.filterKey -> f))
+    val disperserConfig = disperserOpt.map(d => sc(Hcd2.disperserPrefix, Hcd2.disperserKey -> d))
     val configs = List(filterConfig, disperserConfig).flatten
     if (configs.nonEmpty) {
       val setupConfigArg = sca(obsId, configs: _*)

@@ -12,7 +12,7 @@ case class FormButtons() extends Displayable {
     div(Styles.formButtons).render
   }
 
-  def addButton(labelStr: String, listener: () ⇒ Unit, buttonType: String = "submit"): Unit = {
+  def addButton(labelStr: String, listener: () => Unit, buttonType: String = "submit"): Unit = {
     import scalatags.JsDom.all._
     import scalacss.ScalatagsCss._
     val styleObj = if (buttonType == "submit") Styles.formButtonPrimary else Styles.formButtonDefault

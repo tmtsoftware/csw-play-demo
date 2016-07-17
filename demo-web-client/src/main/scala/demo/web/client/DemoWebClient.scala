@@ -104,8 +104,8 @@ case class DemoWebClient(wsBaseUrl: String) {
 
   // Displays data returned from a configGet request
   private def setData(data: DemoData): Unit = {
-    data.filterOpt.foreach(f ⇒ filterChooser.setSelectedItem(f, notifyListener = false))
-    data.disperserOpt.foreach(d ⇒ disperserChooser.setSelectedItem(d, notifyListener = false))
+    data.filterOpt.foreach(f => filterChooser.setSelectedItem(f, notifyListener = false))
+    data.disperserOpt.foreach(d => disperserChooser.setSelectedItem(d, notifyListener = false))
   }
 
   // Displays the current filter position (from telemetry)

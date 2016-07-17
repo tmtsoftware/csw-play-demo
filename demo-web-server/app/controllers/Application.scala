@@ -13,13 +13,13 @@ import play.api.libs.streams.ActorFlow
 class Application @Inject() (implicit system: ActorSystem, materializer: Materializer) extends Controller with LazyLogging {
 
   // websocket to client
-  def ws = WebSocket.accept[String, String] { request ⇒
-    ActorFlow.actorRef(out ⇒ ApplicationActor.props(out))
+  def ws = WebSocket.accept[String, String] { request =>
+    ActorFlow.actorRef(out => ApplicationActor.props(out))
   }
 
   // Main entry point
   def index = {
-    Action { implicit request ⇒
+    Action { implicit request =>
       Ok(views.html.index())
     }
   }
