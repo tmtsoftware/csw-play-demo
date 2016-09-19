@@ -23,7 +23,7 @@ class FormComboBox(labelStr: String, choices: List[String], listener: String => 
   private val selectState = {
     import scalatags.JsDom.all._
     import scalacss.ScalatagsCss._
-    span(Styles.comboboxState, id := stateIdStr, "aria-hidden".attr := "true").render
+    span(Styles.comboboxState, id := stateIdStr, attr("aria-hidden") := "true").render
   }
 
   // The combobox

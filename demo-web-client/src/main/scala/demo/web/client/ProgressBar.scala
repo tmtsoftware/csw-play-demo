@@ -1,6 +1,5 @@
 package demo.web.client
 
-import org.scalajs.dom
 import org.scalajs.dom._
 import org.querki.jquery._
 
@@ -13,8 +12,8 @@ case class ProgressBar(idStr: String = "progress") extends Displayable {
     import scalatags.JsDom.all._
     import scalacss.ScalatagsCss._
     div(Styles.progressBar, id := idStr, role := "progressbar",
-      "aria-valuenow".attr := "0", "aria-valuemin".attr := "0",
-      "aria-valuemax".attr := "100", style := "width: 0%", "0%").render
+      attr("aria-valuenow") := "0", attr("aria-valuemin") := "0",
+      attr("aria-valuemax") := "100", style := "width: 0%", "0%").render
   }
 
   private def pb = $(s"#$idStr")
