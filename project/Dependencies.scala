@@ -2,7 +2,7 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt._
 
 object Dependencies {
-  val Version = "0.2-SNAPSHOT"
+  val Version = "0.3-SNAPSHOT"
   val ScalaVersion = "2.11.8"
 
   // web server dependencies
@@ -12,8 +12,9 @@ object Dependencies {
   val webjarsPlay = "org.webjars" %% "webjars-play" % "2.4.0-1"
   val bootstrap = "org.webjars" % "bootstrap" % "3.3.7"
   val bootstrapTable = "org.webjars.bower" % "bootstrap-table" % "1.11.0"
-  val pkg = "org.tmt" %% "pkg" % "0.2-SNAPSHOT"
-  val hcd2 = "org.tmt" %% "hcd2" % "0.2-SNAPSHOT"
+  val ccs = "org.tmt" %% "ccs" % Version
+  val pkg = "org.tmt" %% "pkg" % Version
+  val hcd2 = "org.tmt" %% "hcd2" % Version
 
   // ScalaJS web client scala dependencies
   val clientDeps = Def.setting(Seq(
