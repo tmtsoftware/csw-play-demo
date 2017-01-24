@@ -1,8 +1,6 @@
 Command Service Play Demo
 =========================
 
-#### Note: This project is not currently up to date with the csw master branch. It will be updated later.
-
 This project contains a Play/ScalaJS web application that works with the assemblies and HCDs in the
 <a href="https://github.com/tmtsoftware/csw-pkg-demo">csw-pkg-demo</a> project. 
 
