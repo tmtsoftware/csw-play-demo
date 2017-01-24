@@ -3,10 +3,10 @@ package controllers
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import csw.pkgDemo.hcd2.Hcd2
 import csw.services.ccs.AssemblyController
+import csw.services.ccs.CommandStatus._
 import csw.services.loc._
 import csw.util.config.Configurations.SetupConfigArg
 import demo.web.shared.{DemoData, SharedCommandStatus, WebSocketMessage}
-import csw.services.ccs.CommandStatus
 import csw.services.loc.ComponentType.Assembly
 import csw.services.loc.Connection.AkkaConnection
 import csw.services.loc.LocationService.{Location, ResolvedAkkaLocation}
@@ -19,15 +19,23 @@ import csw.util.config.StateVariable._
 object ApplicationActor {
   def props(wsActor: ActorRef) = Props(classOf[ApplicationActor], wsActor)
 
-  // An actor that submits a config to and assembly and then forwards assembly status values to the client via websocket
+  // An actor that submits a config to an assembly and then forwards assembly status values to the client via websocket
   // (using wsActor)
   object WsReplyActor {
     def props(wsActor: ActorRef, assembly: ActorRef, setupConfigArg: SetupConfigArg) =
       Props(classOf[WsReplyActor], wsActor, assembly, setupConfigArg)
 
     // Converts a CommandStatus received from the assembly to a SharedCommandStatus that can be sent to the web app
-    def statusToSharedStatus(s: CommandStatus): SharedCommandStatus = {
-      SharedCommandStatus(s.name, s.isDone, s.isFailed, s.message)
+    def commandResultToSharedCommandStatus(cr: CommandResult): SharedCommandStatus = {
+      val isDone = cr.overall == AllCompleted
+      val isFailed = cr.overall == Incomplete || cr.overall == NotAccepted
+      val msgList = cr.details.results.map { p =>
+        p.status match {
+          case Error(m) => Some(m)
+          case _        => None
+        }
+      }
+      SharedCommandStatus(cr.overall.toString, isDone, isFailed, msgList.flatten.mkString(", "))
     }
   }
 
@@ -46,12 +54,12 @@ object ApplicationActor {
     assembly ! AssemblyController.Submit(setupConfigArg)
 
     override def receive: Receive = {
-      case status: CommandStatus =>
-        log.info(s"Replying with command status: $status to websocket")
-        val msg = WebSocketMessage(commandStatus = Some(statusToSharedStatus(status)))
+      case cr @ CommandResult(runId, overall, details) =>
+        log.info(s"Replying with overall command status: $overall to websocket")
+        val msg = WebSocketMessage(commandStatus = Some(commandResultToSharedCommandStatus(cr)))
         val json = write(msg)
         wsActor ! json
-        if (status.isDone) context.stop(self)
+        if (cr.overall == AllCompleted) context.stop(self)
 
       case x => log.error(s"Received unexpected message: $x")
     }

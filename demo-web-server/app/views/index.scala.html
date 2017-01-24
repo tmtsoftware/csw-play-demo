@@ -1,4 +1,6 @@
-@()(implicit request: RequestHeader)
+@import play.api.Environment
+
+@()(implicit request: RequestHeader, environment: Environment)
 
 @main("CSW Play Demo") {
     @playscalajs.html.scripts("demowebclient")
