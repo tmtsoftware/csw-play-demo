@@ -2,8 +2,8 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt._
 
 object Dependencies {
-  val Version = "0.3-SNAPSHOT"
-  val ScalaVersion = "2.11.8"
+  val Version = "0.4-SNAPSHOT"
+  val ScalaVersion = "2.12.1"
 
   // web server dependencies
   val playScalajsScripts = "com.vmunier" %% "play-scalajs-scripts" % "0.5.0"
