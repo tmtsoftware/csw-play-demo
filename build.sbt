@@ -18,7 +18,7 @@ lazy val demoWebServer = (project in file("demo-web-server"))
     pipelineStages := Seq(scalaJSProd, gzip),
     includeFilter in(Assets, LessKeys.less) := "*.less",
     libraryDependencies ++=
-      compile(filters, playScalajsScripts, upickle, jqueryUi, webjarsPlay, bootstrap, bootstrapTable, pkg, ccs, hcd2) ++
+      compile(filters, guice, scalajsScripts, upickle, jqueryUi, webjarsPlay, bootstrap, bootstrapTable, pkg, ccs, hcd2) ++
         test(specs2)
   )
   .enablePlugins(PlayScala, SbtWeb)
@@ -35,7 +35,7 @@ lazy val demoWebClient = (project in file("demo-web-client")).settings(
   skip in packageJSDependencies := false,
   jsDependencies ++= clientJsDeps.value
 ).settings(formatSettings: _*)
-  .enablePlugins(ScalaJSPlugin, ScalaJSPlay)
+  .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
   .dependsOn(demoWebSharedJs)
 
 
@@ -43,7 +43,7 @@ lazy val demoWebClient = (project in file("demo-web-client")).settings(
 lazy val demoWebShared = (crossProject.crossType(CrossType.Pure) in file("demo-web-shared"))
   .settings(scalaVersion := Dependencies.ScalaVersion)
   .settings(formatSettings: _*)
-  .jsConfigure(_ enablePlugins ScalaJSPlay)
+  .jsConfigure(_ enablePlugins ScalaJSWeb)
 
 lazy val demoWebSharedJvm = demoWebShared.jvm
 lazy val demoWebSharedJs = demoWebShared.js

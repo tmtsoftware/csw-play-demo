@@ -4,13 +4,12 @@ logLevel := Level.Warn
 // Resolvers
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
 
-// Sbt plugins
 
 addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.3")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.14")
 
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.0-SNAPSHOT")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.0-M1")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.0")
 

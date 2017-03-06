@@ -1,9 +1,11 @@
 @import play.api.Environment
 
-@()(implicit request: RequestHeader, environment: Environment)
+@(webJarAssets: WebJarAssets)(implicit request: RequestHeader, environment: Environment)
 
-@main("CSW Play Demo") {
-    @playscalajs.html.scripts("demowebclient")
+@main("CSW Play Demo", webJarAssets) {
+    @scalajs.html.scripts("demowebclient",
+        name => routes.Assets.at(name).toString,
+        name => getClass.getResource(s"/public/$name") != null))
 
     <script>
        var settings = {

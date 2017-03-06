@@ -3,7 +3,6 @@ package controllers
 import akka.actor.ActorSystem
 import javax.inject._
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
 import play.api.mvc._
 import akka.stream.Materializer
 import play.api.Environment
@@ -11,7 +10,8 @@ import play.api.libs.streams.ActorFlow
 
 // Main controller
 @Singleton
-class Application @Inject() (env: Environment, system: ActorSystem, materializer: Materializer) extends Controller with LazyLogging {
+class Application @Inject() (env: Environment, system: ActorSystem, materializer: Materializer, webJarAssets: WebJarAssets, components: ControllerComponents)
+    extends AbstractController(components) {
 
   // websocket to client
   def ws = WebSocket.accept[String, String] { request =>
@@ -23,8 +23,9 @@ class Application @Inject() (env: Environment, system: ActorSystem, materializer
   // Main entry point
   def index = {
     implicit val environment = env
-    Action { implicit request =>
-      Ok(views.html.index())
+    Action { implicit request: RequestHeader =>
+
+      Ok(views.html.index(webJarAssets))
     }
   }
 }
