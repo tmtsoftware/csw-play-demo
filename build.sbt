@@ -18,7 +18,7 @@ lazy val demoWebServer = (project in file("demo-web-server"))
     pipelineStages := Seq(scalaJSProd, gzip),
     includeFilter in(Assets, LessKeys.less) := "*.less",
     libraryDependencies ++=
-      compile(filters, guice, scalajsScripts, upickle, jqueryUi, webjarsPlay, bootstrap, bootstrapTable, pkg, ccs, hcd2) ++
+      compile(filters, guice, jdisasm, scalajsScripts, upickle, jqueryUi, webjarsPlay, bootstrap, bootstrapTable, pkg, ccs, hcd2) ++
         test(specs2)
   )
   .enablePlugins(PlayScala, SbtWeb)

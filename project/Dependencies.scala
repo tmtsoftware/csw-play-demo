@@ -2,8 +2,8 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import sbt._
 
 object Dependencies {
-  val Version = "0.4-SNAPSHOT"
-  val ScalaVersion = "2.12.1"
+  val Version = "0.5"
+  val ScalaVersion = "2.12.2"
 
   // web server dependencies
   val scalajsScripts = "com.vmunier" %% "scalajs-scripts" % "1.1.0"
@@ -12,6 +12,7 @@ object Dependencies {
   val webjarsPlay = "org.webjars" %% "webjars-play" % "2.6.0-M1"
   val bootstrap = "org.webjars" % "bootstrap" % "3.3.7"
   val bootstrapTable = "org.webjars.bower" % "bootstrap-table" % "1.11.0"
+  val jdisasm = "de.unkrig.jdisasm" % "jdisasm" % "1.0.0" // XXX Undeclared dependency of janino or logback?
   val ccs = "org.tmt" %% "ccs" % Version
   val pkg = "org.tmt" %% "pkg" % Version
   val hcd2 = "org.tmt" %% "hcd2" % Version
